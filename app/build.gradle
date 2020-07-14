@@ -27,6 +27,9 @@ android {
 dependencies {
 //    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     def nav_version = "2.3.0-rc01"
+    // ViewPager 2
+    implementation "androidx.viewpager2:viewpager2:1.0.0"
+
     // Kotlin navigation
     implementation "androidx.navigation:navigation-fragment-ktx:${nav_version}"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"

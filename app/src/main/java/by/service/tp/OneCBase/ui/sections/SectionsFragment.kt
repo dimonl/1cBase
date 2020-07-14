@@ -78,7 +78,7 @@ class ThemesFragment : Fragment() {
         RecyclerViewListSections.adapter = sectionsAdapter
         RecyclerViewListSections.layoutManager = LinearLayoutManager(this.context)
         sectionsAdapter.onItemClick = {
-            if (it.isChecked) {
+            if (!it.isChecked) {
                 choosenItems.add(it._id)
             } else {
                 choosenItems.remove(it._id)
@@ -104,8 +104,9 @@ class ThemesFragment : Fragment() {
             val newBundle = Bundle()
             savedInstanceState?.putIntArray("sectionsIds", choosenItems.toIntArray()) ?: run {
                 newBundle.putIntArray("sectionsIds", choosenItems.toIntArray())
+                newBundle.putInt("themeIndex", param3 ?: 0)
             }
-            view?.findNavController()?.navigate(R.id.themesFragment, savedInstanceState?:newBundle )
+            view?.findNavController()?.navigate(R.id.challengeFragment, savedInstanceState?:newBundle )
         }
     }
 
