@@ -17,11 +17,9 @@ import by.service.tp.OneCBase.adapters.ThemesAdapter
 import by.service.tp.OneCBase.data.Theme
 import by.service.tp.OneCBase.data.ThemeDAO
 import kotlinx.android.synthetic.main.main_fragment.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Unconfined
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class MainFragment : Fragment() { // , ThemesViewHolder.OnThemeListener
@@ -39,12 +37,17 @@ class MainFragment : Fragment() { // , ThemesViewHolder.OnThemeListener
          return inflater.inflate(R.layout.main_fragment, container, false)
     }
 
+    override fun onDestroyView() {
+        uiScope.cancel()
+        super.onDestroyView()
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
         themeAdapter = ThemesAdapter()
 
-        uiScope.launch(Unconfined) {
+        uiScope.launch(IO) {
             var list = getThemes()
             themeAdapter.addThemes(list) // items
         }

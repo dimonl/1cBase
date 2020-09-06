@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.WorkerThread
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import by.service.tp.OneCBase.MyApp
 import by.service.tp.OneCBase.R
 import by.service.tp.OneCBase.adapters.ViewPagerAdapter
@@ -16,10 +17,11 @@ import by.service.tp.OneCBase.data.QuestionDAO
 import by.service.tp.OneCBase.data.Section
 import by.service.tp.OneCBase.data.SectionDAO
 import kotlinx.android.synthetic.main.fragment_challenge.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.android.synthetic.main.fragment_sections.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import java.lang.Exception
 
 class ChallengeFragment : Fragment() {
     private var param1: Int? = null
@@ -49,22 +51,20 @@ class ChallengeFragment : Fragment() {
 
         val elementAdapter = ViewPagerAdapter(this);
 
-        //uiScope.launch(Dispatchers.Unconfined) {
-           Thread {
-               getQuestions(param1 ?: 0, param2?: IntArray(0) )
-               elementAdapter.addQuestions(list) // items
-           }
-
-        //}
-        viewPager2Challenge.adapter = elementAdapter
+        uiScope.launch(Main) {
+            val listQ = getQuestions(param1 ?: 0, param2?: IntArray(0) )
+            list = listQ
+            elementAdapter.addQuestions(list) // items
+            viewPager2Challenge.adapter = elementAdapter
+        }
     }
 
-    @WorkerThread
-    private fun getQuestions(_idTheme: Int, _idSections: IntArray) {
-        val list = QuestionDAO.getQuestions(_idTheme, _idSections).toMutableList()
-        Handler(Looper.getMainLooper()).post {
-            this.list = list
-        }
-        //return true  //withContext(Dispatchers.IO) { QuestionDAO.getQuestions(_idTheme, _idSections)}
+    private suspend fun getQuestions(_idTheme: Int, _idSections: IntArray) : List<Question> {
+        return withContext(Dispatchers.IO) { QuestionDAO.getQuestions(_idTheme, _idSections).toMutableList()}
+    }
+
+    override fun onDestroyView() {
+        uiScope.cancel()
+        super.onDestroyView()
     }
 }

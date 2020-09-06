@@ -18,11 +18,9 @@ import by.service.tp.OneCBase.data.Theme
 import by.service.tp.OneCBase.data.ThemeDAO
 import kotlinx.android.synthetic.main.fragment_sections.*
 import kotlinx.android.synthetic.main.main_fragment.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Unconfined
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -50,7 +48,7 @@ class ThemesFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param3 = it.getInt("themeIndex")
+            param3 = it.getInt("themeIndex") + 1
         }
 
     }
@@ -69,14 +67,15 @@ class ThemesFragment : Fragment() {
 
         sectionsAdapter = SectionsAdapter()
 
-        uiScope.launch(Unconfined) {
+        uiScope.launch(IO) {
             list = getSections(param3 ?: 0).toMutableList()
             sectionsAdapter.addSections(list) // items
+            RecyclerViewListSections.adapter = sectionsAdapter
         }
-
-
-        RecyclerViewListSections.adapter = sectionsAdapter
         RecyclerViewListSections.layoutManager = LinearLayoutManager(this.context)
+
+
+
         sectionsAdapter.onItemClick = {
             if (!it.isChecked) {
                 choosenItems.add(it._id)
@@ -110,11 +109,12 @@ class ThemesFragment : Fragment() {
         }
     }
 
-    private suspend fun getSections(_idTheme: Int): List<Section> {
+    private suspend fun getSections(_idTheme: Int): List<Section> { //
         return withContext(Dispatchers.IO) { SectionDAO.getAllSections(_idTheme)}
     }
 
     override fun onDestroyView() {
+        uiScope.cancel()
         super.onDestroyView()
     }
 }

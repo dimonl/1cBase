@@ -10,3 +10,7 @@ data class Question(
     var rightChoice: Int,
     var userChoice: Int
 )
+
+data class QuestList(
+    var name: String
+)
